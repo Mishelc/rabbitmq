@@ -1,0 +1,33 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: logstash-configmap
+  namespace: default
+data:
+  cacrt: |
+    <elasticsearch-ssl-certificate>
+  logstash.conf: |
+    input { 
+      rabbitmq {
+        host => "${rabbitmq.host}" 
+        port => "${rabbitmq.port}" 
+        user => "${rabbitmq.username}"
+        password => "${rabbitmq.password}"
+        durable => true 
+        queue => "${rabbitmq.queue}"
+        ssl => true
+      } 
+      stdin { codec => plain }
+    }
+    output {
+      elasticsearch {
+        hosts => [ "${ES_HOSTS}" ]
+        user => "${elasticsearch.tribe.username}"
+        password => "${elasticsearch.tribe.password}"
+        cacert => '/etc/logstash/certificates/cacrt'
+      }
+    }
+  logstash.yml: |
+    http.host: "0.0.0.0"
+    path.config: /usr/share/logstash/pipeline
+

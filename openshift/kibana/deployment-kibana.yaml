@@ -1,0 +1,50 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: deployment-kibana
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kibana-app
+  template:
+    metadata:
+      labels:
+        app: kibana-app
+    spec:
+      containers:
+        - name: kibana
+          image: 'docker.elastic.co/kibana/kibana-oss:7.9.0'
+          ports:
+            - containerPort: 5601
+              protocol: TCP
+          env:
+            - name: ES_HOSTS
+              valueFrom:
+                secretKeyRef:
+                  name: binding-elasticsearch.testing
+                  key: connection.cli.arguments.0.2
+            - name: ES_USERNAME
+              valueFrom:
+                secretKeyRef:
+                  name: binding-elasticsearch.testing
+                  key: connection.https.authentication.username
+            - name: ES_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: binding-elasticsearch.testing
+                  key: connection.https.authentication.password
+          volumeMounts:
+            - name: config-volume
+              mountPath: /usr/share/kibana/config
+      volumes:
+        - name: config-volume
+          configMap:
+            name: kibana-configmap
+            items:
+              - key: kibana.yml
+                path: kibana.yml
+              - key: cacert
+                path: cacert    
+      

@@ -1,0 +1,20 @@
+kind: ConfigMap
+apiVersion: v1
+metadata:
+  name: kibana-configmap
+  namespace: default
+data:
+  cacert: |
+    <elasticsearch-ssl-certificate>
+  kibana.yml: >
+    elasticsearch.ssl.certificateAuthorities: "/usr/share/kibana/config/cacert"
+
+    elasticsearch.username: "${ES_USERNAME}"
+
+    elasticsearch.password: "${ES_PASSWORD}"
+
+    elasticsearch.hosts: [ "${ES_HOSTS}" ]
+
+    server.name: "kibana"
+
+    server.host: "0.0.0.0"

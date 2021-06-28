@@ -1,0 +1,33 @@
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  name: node-web-app
+  namespace: default
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: app-demo
+  template:
+    metadata:
+      labels:
+        app: app-demo
+    spec:
+      containers:
+        - name: app-demo
+          image: '<region>.icr.io/<my_namespace>/<image_repo>:<tag>'
+          ports:
+            - containerPort: 8080
+              protocol: TCP
+          env:
+            - name: rabbit_connection_amqps
+              valueFrom:
+                secretKeyRef:
+                  name: binding-rabbitmq.testing
+                  key: connection.amqps.composed.0
+            - name: rabbit_certificate_base64
+              valueFrom:
+                secretKeyRef:
+                  name: binding-rabbitmq.testing
+                  key: connection.amqps.certificate.certificate_base64
+
